@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Project A : Marquette, Malavet</title>
+  </head>
+  <body onload="main()">
+    <canvas id="webgl" width="500" height="500"></canvas>
+		<br>
+		<span id='KeyDownResult'  ></span> 
+	<p>
+		Main Rotor :
+		<button type="button" onclick="slowMain()">Decrease RPM </button>
+		<button type="button" onclick="speedMain()">Increase RPM </button>
+	</p>
+	<p>
+		Tail Rotor :   
+		<button type="button" onclick="slowTail()">Decrease RPM </button>
+		<button type="button" onclick="speedTail()">Increase RPM </button>
+    </p>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-quat03.js"></script>
+    <script src="ProjectA.js"></script>
+  </body>
+</html>
