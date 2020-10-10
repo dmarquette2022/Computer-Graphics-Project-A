@@ -47,6 +47,14 @@ var g_mainAngle = 0;
 var g_tailRpm = 5.0;
 var g_tailAngle = 0.0;
 
+var vert = 0;
+var hori = 0;
+
+var cw = 0;
+var pitch = 0;
+
+var dist = 0;
+
 
 function main() {
 
@@ -72,7 +80,6 @@ function main() {
 	}
 
 	window.addEventListener("keydown", myKeyDown, false);
-	window.addEventListener("keyup", myKeyUp, false);
 	gl.clearColor(0.3, 0.3, 0.3, 1.0);
 
 	gl.depthFunc(gl.LESS);
@@ -262,16 +269,18 @@ function drawAll()
 	
 
 	g_modelMatrix.setTranslate(-0.5,-0.5,0,0);
+	g_modelMatrix.translate(hori,vert,dist,0);
 	g_modelMatrix.scale(1,1,-1);
 	g_modelMatrix.scale(0.5,0.5,0.5);
-	g_modelMatrix.rotate(g_tailAngle,0,1,0);
 	//REMOVE THIS TO SEE REGULAR POSITIONING
-	g_modelMatrix.rotate(45,1,0,0);
+	g_modelMatrix.rotate(cw,0,1,0);
+	g_modelMatrix.rotate(pitch,0,0,1);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
 	drawBody();
 	pushMatrix(g_modelMatrix);
 	g_modelMatrix.translate(0.5,1.1,0.5,0);
 	g_modelMatrix.rotate(g_mainAngle,0,1,0);
+	g_modelMatrix.scale(0.7,0.7,0.7);
 	//g_modelMatrix.rotate(90, 1, 0, 0);
 
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
@@ -286,8 +295,32 @@ function drawAll()
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
 	drawPropeller();
 	g_modelMatrix = popMatrix();
+
+	pushMatrix(g_modelMatrix);
+
+	g_modelMatrix.translate(-0.1,0.5,0.5,0);
+	g_modelMatrix.rotate(g_tailAngle,1,0,0);
+	g_modelMatrix.rotate(90,0,0,1);
+	g_modelMatrix.scale(0.4,0.4,0.4);
+	
+
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix = popMatrix();
+	
+	
 	g_modelMatrix.translate(1,0,1,0);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+
 	drawBack();
 
 }
@@ -348,80 +381,44 @@ function myKeyDown(kev) {
 		//------------------WASD navigation-----------------
 		case "KeyA":
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe LEFT!';
+			hori-=0.01;
 			break;
     	case "KeyD":
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe RIGHT!';
+			hori+=0.01;
 			break;
 		case "KeyS":
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Move DOWN!';
+			vert-=0.01;
 			break;
 		case "KeyW":
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Move UP!';
+			vert+=0.01;
 			break;
-		//----------------Arrow keys------------------------
-		case "ArrowLeft": 	
+		case "KeyE":
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe LEFT!';
+			cw-=0.5;
 			break;
-		case "ArrowRight":
+		case "KeyQ":
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe RIGHT!';
+			cw+=0.5;
+			break;
+		case "KeyX":
+			document.getElementById('KeyDownResult').innerHTML =  
+			pitch-=0.5;
+			break;
+		case "KeyZ":
+			document.getElementById('KeyDownResult').innerHTML =  
+			pitch+=0.5;
 			break;
 		case "ArrowUp":		
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Move UP!';
+			dist-=0.1;
 			break;
 		case "ArrowDown":
 			document.getElementById('KeyDownResult').innerHTML =  
-			'Move DOWN!';
-			break;
-    default:
-  		document.getElementById('KeyDownResult').innerHTML =
-  		'Not Used';
-     	break;
-	}
-}
-
-function myKeyUp(kev) {
-	switch(kev.code) {
-		//------------------WASD navigation-----------------
-		case "KeyA":
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe LEFT Stop!';
-			break;
-    	case "KeyD":
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe RIGHT Stop!';
-			break;
-		case "KeyS":
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Move DOWN Stop!';
-			break;
-		case "KeyW":
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Move UP Stop!';
-			break;
-		//----------------Arrow keys------------------------
-		case "ArrowLeft": 	
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe LEFT Stop!';
-			break;
-		case "ArrowRight":
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Strafe RIGHT Stop!';
-			break;
-		case "ArrowUp":		
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Move UP Stop!';w
-			break;
-		case "ArrowDown":
-			document.getElementById('KeyDownResult').innerHTML =  
-			'Move DOWN Stop!';
-			break;
+			dist+=0.1;
+			break;	
     default:
   		document.getElementById('KeyDownResult').innerHTML =
   		'Not Used';
