@@ -40,11 +40,11 @@ var g_modelMatLoc;                  // that uniform's location in the GPU
 var g_isRun = true;                 // run/stop for animation; used in tick().
 var g_lastMS = Date.now();    			// Timestamp for most-recently-drawn image; 
 
-var g_mainRpm = 30.0;          // rotation speed, in degrees/second
+var g_mainRpm = 60.0;          // rotation speed, in degrees/second
 var g_mainAngle = 0;
 
 									
-var g_tailRpm = 5.0;
+var g_tailRpm = 20.0;
 var g_tailAngle = 0.0;
 
 var vert = 0;
@@ -54,6 +54,8 @@ var cw = 0;
 var pitch = 0;
 
 var dist = 0;
+g_viewAngle = 30;
+
 
 
 function main() {
@@ -217,9 +219,166 @@ function initVertexBuffer() {
 	0.0,  1.0, -1.0, 1.0,  1, 0, 0,
 	1.0,  1,  -0.2, 1.0,   1, 0, 0,
 
+	//propellor prop
+	0, 0, 0, 1, 	1, 0, 0,
+	0, 0.4, 0, 1,	1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0 ,0,
+
+	0, 0.4, 0, 1,	1, 0, 0,
+	0.2, 0.4, 0, 1, 1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0 ,0,
+
+	0.2, 0.4, 0, 1, 	0, 0, 1,
+	0.2, 0, 0, 1,  	 	0, 0 ,1,
+	0.2, 0, -0.2, 1, 	0, 0 ,1,
+
+	0.2, 0.4, 0, 1, 	0, 0, 1,
+	0.2, 0.4, -0.2, 1, 	0, 0, 1,
+	0.2, 0, -0.2, 1, 	0, 0 ,1,
+
+	0, 0, -0.2, 1, 		1, 0, 0,
+	0, 0.4, -0.2, 1,	1, 0, 0,
+	0.2, 0, -0.2, 1, 	1, 0 ,0,
+
+	0, 0.4, -0.2, 1,	1, 0, 0,
+	0.2, 0.4, -0.2, 1,  1, 0, 0,
+	0.2, 0, -0.2, 1, 	1, 0 ,0,
+
+	0, 0, -0.2, 1,	0,1,0,
+	0, 0.4, -0.2, 1, 	0, 1, 0,
+	0, 0.4, 0, 1, 	0,1,0,
+
+	0, 0, 0, 1, 	0,1,0,
+	0, 0.4, 0, 1,  0,1,0,
+	0, 0, -0.2, 1,	0,1,0,
+
+	0, 0.4, 0, 1,	1, 0, 0,
+	0, 0.4, -0.2, 1,	1, 0, 0,
+	0.2, 0.4, 0, 1, 	0,0,0,
+
+	0, 0.4, -0.2, 1,	1, 0, 0,
+	0.2, 0.4, 0, 1, 	0,0,0,
+	0.2, 0.4, -0.2, 1, 	0,0,0,
+
+	0, 0, 0, 1, 	1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0, 0,
+	0, 0, -0.2, 1, 	1, 0, 0,
+
+	0.2, 0, -0.2, 1, 	1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0, 0,
+	0, 0, -0.2, 1, 	1, 0, 0,
+
+	//Landing gear
+	0, 0, 0, 1, 		1, 0, 0,
+	0, 0.2, 0, 1, 		1, 0, 0,
+	1, 0, 0, 1, 		1, 0, 0,
+
+	0, 0.2, 0,  1, 		1, 0, 0,
+	1, 0, 0, 	1, 		1, 0, 0,
+	1, 0.2, 0,  1, 		1, 0, 0,
+
+	0, 0, -0.2, 1, 		1, 0, 0,
+	0, 0.2, -0.2, 1, 	1, 0, 0,
+	1, 0, -0.2, 1, 		1, 0, 0,
+
+	0, 0.2, -0.2, 1, 	1, 0, 0,
+	1, 0, -0.2, 1, 		1, 0, 0,
+	1, 0.2, -0.2, 1, 	1, 0, 0,
+
+	0, 0.2, -0.2, 1, 	0, 1, 0,
+	1, 0.2, -0.2, 1, 	0, 1, 0,
+	1, 0.2, 0, 1, 		0, 1, 0,
+
+	1, 0.2, 0, 1, 		0, 1, 0,
+	0, 0.2, -0.2, 1, 	0, 1, 0,
+	0, 0.2, 0, 1, 		0, 1, 0,
+	
+	0, 0, -0.2, 1, 		0, 1, 0,
+	1, 0, -0.2, 1, 		0, 1, 0,
+	1, 0, 0, 1, 		0, 1, 0,
+
+	1, 0, 0, 1, 		0, 1, 0,
+	0, 0, -0.2, 1, 		0, 1, 0,
+	0, 0, 0, 1, 		0, 1, 0,
+
+	0, 0, -0.2, 1, 		0, 1, 0,
+	0, 0, 0, 1, 		0, 1, 0,
+	0, 0.2, 0, 1, 		0, 1, 0,
+
+	0, 0.2, -0.2, 1, 	0, 1, 0,
+	0, 0.2, 0, 1, 		0, 1, 0,
+	0, 0, -0.2, 1, 		0, 1, 0,
+
+	1, 0, -0.2, 1, 		0, 1, 0,
+	1, 0, 0, 1, 		0, 1, 0,
+	1, 0.2, 0, 1, 		0, 1, 0,
+
+	1, 0.2, -0.2, 1, 	0, 1, 0,
+	1, 0.2, 0, 1, 		0, 1, 0,
+	1, 0, -0.2, 1, 		0, 1, 0,
+
+	//feet supports for landing
+	0, 0, 0, 1, 	1, 0, 0,
+	0, 0.2, 0, 1,	1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0 ,0,
+
+	0, 0.2, 0, 1,	1, 0, 0,
+	0.2, 0.2, 0, 1, 1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0 ,0,
+
+	0.2, 0.2, 0, 1, 	0, 0, 1,
+	0.2, 0, 0, 1,  	 	0, 0 ,1,
+	0.2, 0, -0.2, 1, 	0, 0 ,1,
+
+	0.2, 0.2, 0, 1, 	0, 0, 1,
+	0.2, 0.2, -0.2, 1, 	0, 0, 1,
+	0.2, 0, -0.2, 1, 	0, 0 ,1,
+
+	0, 0, -0.2, 1, 		1, 0, 0,
+	0, 0.2, -0.2, 1,	1, 0, 0,
+	0.2, 0, -0.2, 1, 	1, 0 ,0,
+
+	0, 0.2, -0.2, 1,	1, 0, 0,
+	0.2, 0.2, -0.2, 1,  1, 0, 0,
+	0.2, 0, -0.2, 1, 	1, 0 ,0,
+
+	0, 0, -0.2, 1,	0,1,0,
+	0, 0.2, -0.2, 1, 	0, 1, 0,
+	0, 0.2, 0, 1, 	0,1,0,
+
+	0, 0, 0, 1, 	0,1,0,
+	0, 0.2, 0, 1,  0,1,0,
+	0, 0, -0.2, 1,	0,1,0,
+
+	0, 0.2, 0, 1,	1, 0, 0,
+	0, 0.2, -0.2, 1,	1, 0, 0,
+	0.2, 0.2, 0, 1, 	0,0,0,
+
+	0, 0.2, -0.2, 1,	1, 0, 0,
+	0.2, 0.2, 0, 1, 	0,0,0,
+	0.2, 0.2, -0.2, 1, 	0,0,0,
+
+	0, 0, 0, 1, 	1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0, 0,
+	0, 0, -0.2, 1, 	1, 0, 0,
+
+	0.2, 0, -0.2, 1, 	1, 0, 0,
+	0.2, 0, 0, 1, 	1, 0, 0,
+	0, 0, -0.2, 1, 	1, 0, 0,
+
+
+
+
+
+
+
+
+
+
+
   ]);
 
-  g_vertsMax = 60;
+  g_vertsMax = 138;
 
   var shapeBufferHandle = gl.createBuffer();  
   if (!shapeBufferHandle) {
@@ -268,11 +427,14 @@ function drawAll()
 	clrColr = gl.getParameter(gl.COLOR_CLEAR_VALUE);
 	
 
+
 	g_modelMatrix.setTranslate(-0.5,-0.5,0,0);
 	g_modelMatrix.translate(hori,vert,dist,0);
 	g_modelMatrix.scale(1,1,-1);
 	g_modelMatrix.scale(0.5,0.5,0.5);
 	//REMOVE THIS TO SEE REGULAR POSITIONING
+	g_modelMatrix.rotate(-30,1 , 0, 0);
+	g_modelMatrix.rotate(-20,0  , 1, 0);
 	g_modelMatrix.rotate(cw,0,1,0);
 	g_modelMatrix.rotate(pitch,0,0,1);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
@@ -294,40 +456,74 @@ function drawAll()
 	g_modelMatrix.rotate(90, 0,1,0);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
 	drawPropeller();
-	g_modelMatrix = popMatrix();
 
+	g_modelMatrix = popMatrix();
 	pushMatrix(g_modelMatrix);
 
 	g_modelMatrix.translate(-0.1,0.5,0.5,0);
 	g_modelMatrix.rotate(g_tailAngle,1,0,0);
 	g_modelMatrix.rotate(90,0,0,1);
 	g_modelMatrix.scale(0.4,0.4,0.4);
-	
 
-	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
-	drawPropeller();
-	g_modelMatrix.rotate(90,0,1,0);
-	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
-	drawPropeller();
-	g_modelMatrix.rotate(90,0,1,0);
-	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
-	drawPropeller();
-	g_modelMatrix.rotate(90,0,1,0);
-	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
-	drawPropeller();
 	g_modelMatrix = popMatrix();
-	
+	pushMatrix(g_modelMatrix);
 	
 	g_modelMatrix.translate(1,0,1,0);
+	g_modelMatrix.scale(1.3,1,1);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
 
 	drawBack();
+	g_modelMatrix.translate(1,1,-0.15,0);
+	g_modelMatrix.scale(0.5,0.5,0.5);
+	g_modelMatrix.translate(-0.2,0,0,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawBackProp();
+	g_modelMatrix.translate(0.1,0.4,0,0);
+	g_modelMatrix.rotate(90,1,0,0);
+	g_modelMatrix.rotate(g_tailAngle, 0,1,0);
+	g_modelMatrix.scale(0.6,0.6,0.6);
+	//g_modelMatrix.scale(0.2,0.2,0.2);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
 
-}
 
-function drawBody()
-{
-	gl.drawArrays(gl.TRIANGLES, 18,36);
+	g_modelMatrix = popMatrix();
+	pushMatrix(g_modelMatrix);
+	g_modelMatrix.translate(0,-0.4, 0.2, 0);
+	//g_modelMatrix.scale(2,2,2);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawLanding();
+	
+	g_modelMatrix.translate(0.15,0.2, 0, 0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawFeetSupport();
+	g_modelMatrix.translate(0.45, 0, 0, 0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawFeetSupport();
+
+	g_modelMatrix = popMatrix();
+	pushMatrix(g_modelMatrix);
+	g_modelMatrix.translate(0,-0.4, 1, 0);
+	//g_modelMatrix.scale(2,2,2);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawLanding();
+	g_modelMatrix.translate(0.15,0.2, 0, 0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawFeetSupport();
+	g_modelMatrix.translate(0.45, 0, 0, 0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawFeetSupport();
+
+
 }
 
 function drawPropeller()
@@ -335,9 +531,29 @@ function drawPropeller()
 	gl.drawArrays(gl.TRIANGLES, 0,18);
 }
 
+function drawBody()
+{
+	gl.drawArrays(gl.TRIANGLES, 18,36);
+}
+
 function drawBack()
 {
 	gl.drawArrays(gl.TRIANGLES, 54,12);
+}
+
+function drawBackProp()
+{
+	gl.drawArrays(gl.TRIANGLES, 66,36);
+}
+
+function drawLanding()
+{
+	gl.drawArrays(gl.TRIANGLES, 102, 36);
+}
+
+function drawFeetSupport()
+{
+	gl.drawArrays(gl.TRIANGLES, 138, 36);
 }
 
 var g_last = Date.now();
@@ -349,6 +565,7 @@ function animate()
 	g_last = now;
 	g_mainAngle = g_mainAngle + (g_mainRpm * elapsed) / 1000;
 	g_tailAngle = g_tailAngle + (g_tailRpm * elapsed) / 1000; 
+	g_viewAngle = g_viewAngle + 0.2;
 }
 
 function slowMain(){
