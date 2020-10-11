@@ -40,21 +40,42 @@ var g_modelMatLoc;                  // that uniform's location in the GPU
 var g_isRun = true;                 // run/stop for animation; used in tick().
 var g_lastMS = Date.now();    			// Timestamp for most-recently-drawn image; 
 
-var g_mainRpm = 60.0;          // rotation speed, in degrees/second
+var main_speed = document.getElementById("main_rotor");
+
+var g_mainRpm = main_speed.value;          // rotation speed, in degrees/second
 var g_mainAngle = 0;
 
-									
-var g_tailRpm = 20.0;
+var tail_speed = document.getElementById("tail_rotor");
+		
+var g_tailRpm = tail_speed.value;
 var g_tailAngle = 0.0;
 
-var vert = 0;
-var hori = 0;
+var g_vertical = 0;
+var g_horizontal = 0;
 
-var cw = 0;
-var pitch = 0;
+var g_rotation = 0;
+var g_pitch = 0;
 
-var dist = 0;
+var zoom = document.getElementById("zoom");
+var g_scale = zoom.value;
+
 g_viewAngle = 30;
+
+var g_isDrag=false;		// mouse-drag: true when user holds down mouse button
+var g_xMclik=0.0;			// last mouse button-down position (in CVV coords)
+var g_yMclik=0.0;   
+var g_xMdragTot=0.0;	// total (accumulated) mouse-drag amounts (in CVV coords).
+var g_yMdragTot=0.0;
+
+
+window.addEventListener("mousedown", myMouseDown); 
+// (After each 'mousedown' event, browser calls the myMouseDown() fcn.)
+window.addEventListener("mousemove", myMouseMove); 
+window.addEventListener("mouseup", myMouseUp);	
+window.addEventListener("click", myMouseClick);				
+window.addEventListener("dblclick", myMouseDblClick);
+window.addEventListener("wheel",scroll);
+
 
 
 
@@ -108,274 +129,194 @@ function main() {
 function initVertexBuffer() {				 
 
   var colorShapes = new Float32Array([
-	//Proppeler
-	0, 0, 0, 1, 	0, 0, 0,
-	1, -0.1, 0, 1, 	0, 0, 0,
-	1, 0.1, 0, 1,	 0, 0, 0,
+	
+// Propeller
+	0, 0, 0, 1, 		0.2,0.2,0.2,
+	1, -0.1, 0, 1, 		0.2,0.2,0.2,
+	1, 0.1, 0, 1,	 	0,0,0,
+	1, -0.1, 0, 1, 		0.2,0.2,0.2,
+	1, 0.1, 0, 1,	 	0.2,0.2,0.2,
+	1, 0.1, -0.5, 1,	0,0,0,
+	1, -0.1, 0, 1,	 	0.2,0.2,0.2,
+	1, -0.1, -0.5, 1,	0.2,0.2,0.2,
+	1, 0.1, -0.5, 1,	0,0,0,
+	0, 0, 0, 1, 		0.2,0.2,0.2,
+	1, -0.1, -0.5, 1, 	0.2,0.2,0.2,
+	1, 0.1, -0.5, 1,	0,0,0,
+	0, 0, 0, 1, 		0.2,0.2,0.2,
+	1, 0.1, 0, 1,	 	0.2,0.2,0.2,
+	1, 0.1, -0.5, 1,	0,0,0,
+	0, 0, 0, 1, 		0.2,0.2,0.2,
+	1, -0.1, 0, 1,	 	0.2,0.2,0.2,
+	1, -0.1, -0.5, 1,	0,0,0,
 
-	1, -0.1, 0, 1, 	0, 0, 0,
-	1, 0.1, 0, 1,	 0, 0, 0,
-	1, 0.1, -0.5, 1,	 0, 0, 0,
+// Body
+	// Front
+	0.0, 0.0, 0.0, 1.0, 	0.7,0.7,1,
+	0.0,  1.0, 0.0, 1.0,  	0.7,0.7,1,
+	1.0,  1.0, 0.0, 1.0, 	0.7,0.7,1,
+	0.0, 0.0,  0.0, 1.0, 	0.7,0.7,1, 
+	1.0,  0.0,  0.0, 1.0,   0.7,0.7,1,
+	1.0,  1.0,  0.0, 1.0, 	0.7,0.7,1,
+	0.0, 0.0,  1.0, 1.0, 	0.7,0.7,1,
+	0.0,  1.0,  1.0, 1.0,  	0.7,0.7,1,
+	1.0,  1.0,  1.0, 1.0, 	0.7,0.7,1,
+	0.0, 0.0,  1.0, 1.0, 	0.7,0.7,1, 
+	1.0,  0.0,  1.0, 1.0,   0.7,0.7,1,
+	1.0,  1.0,  1.0, 1.0, 	0.7,0.7,1,
+	1.0, 0.0,  0.0, 1.0, 	0.7,0.7,1, 
+	1.0,  1.0,  0.0, 1.0,   0.7,0.7,1,
+	1.0,  1.0,  1.0, 1.0, 	0.7,0.7,1,
+	1.0, 0.0,  0.0, 1.0, 	0.7,0.7,1, 
+	1.0,  0.0,  1.0, 1.0,   0.7,0.7,1,
+	1.0,  1.0,  1.0, 1.0, 	0.7,0.7,1,
+	0.0, 0.0,  0.0, 1.0, 	0.7,0.7,1, 
+	0.0,  1.0,  0.0, 1.0,   0.7,0.7,1,
+	0.0,  1.0,  1.0, 1.0, 	0.2,0.2,1,
+	0.0, 0.0,  0.0, 1.0, 	0.7,0.7,1, 
+	0.0,  0.0,  1.0, 1.0,   0.7,0.7,1,
+	0.0,  1.0,  1.0, 1.0, 	0.2,0.2,1,
+	0.0, 1.0,  0.0, 1.0, 	0.7,0.7,1, 
+	0.0,  1.0,  1.0, 1.0,   0.7,0.7,1,
+	1.0,  1.0,  1.0, 1.0, 	0.7,0.7,1,
+	0.0, 1.0,  0.0, 1.0, 	0.7,0.7,1, 
+	1.0,  1.0,  0.0, 1.0,   0.7,0.7,1,
+	1.0,  1.0,  1.0, 1.0, 	0.7,0.7,1,
+	0.0, 0.0,  0.0, 1.0, 	0.7,0.7,1, 
+	0.0,  0.0,  1.0, 1.0,   0.7,0.7,1,
+	1.0,  0.0,  1.0, 1.0, 	0.7,0.7,1,
+	0.0, 0.0,  0.0, 1.0, 	0.7,0.7,1, 
+	1.0,  0.0,  0.0, 1.0,   0.7,0.7,1,
+	1.0,  0.0,  1.0, 1.0, 	0.7,0.7,1,
 
-	1, -0.1, 0, 1,	 0, 0, 0,
-	1, -0.1, -0.5, 1,	 0, 0, 0,
-	1, 0.1, -0.5, 1,	 0, 0, 0,
+	// Back
+	0.0, 0.0, 0.0, 1.0, 	0.7,0.7,1,
+	0.0,  1.0, 0.0, 1.0, 	0.7,0.7,1,
+	1.0,  1,  -0.2, 1.0,    0,0,1,
+	0.0, 0.0, -1.0, 1.0, 	0.7,0.7,1, 
+	0.0,  1.0, -1.0, 1.0,  	0.7,0.7,1,
+	1.0,  1,  -0.2, 1.0,  	0,0,1,
+	0.0, 0.0, 0.0, 1.0, 	0.7,0.7,1, 
+	0.0, 0.0, -1.0, 1.0, 	0.7,0.7,1,
+	1.0,  1,  -0.2, 1.0,    0,0,1,
 
-	0, 0, 0, 1, 	0, 0, 1,
-	1, -0.1, -0.5, 1, 	0, 0, 1,
-	1, 0.1, -0.5, 1,	 0, 0, 1,
+	0.0,  1.0, 0.0, 1.0,  	0.7,0.7,1,
+	0.0,  1.0, -1.0, 1.0,  	0.7,0.7,1,
+	1.0,  1,  -0.2, 1.0,   	0.7,0.7,1,
 
-	0, 0, 0, 1, 	1, 0, 0,
-	1, 0.1, 0, 1,	 1, 0, 0,
-	1, 0.1, -0.5, 1,	 1, 0, 0,
-
-	0, 0, 0, 1, 	0, 1, 0,
-	1, -0.1, 0, 1,	 0, 1, 0,
-	1, -0.1, -0.5, 1,	 0, 1, 0,
-
-
-
-	/*
-
-	0, 0, 0, 1, 	0, 0, 0,
-	0, 1, 0, 1, 	0, 0, 0,
-	-0.2, 1, 0, 1,	 0, 0, 0,
-
-	0, 0, 0, 1, 	0, 0, 0,
-	0, -1, 0, 1, 	0, 0, 0,
-	0.2, -1, 0, 1,	 0, 0, 0,
-
-	0, 0, 0, 1, 	0, 0, 0,
-	-1, 0, 0, 1, 	0, 0, 0,
-	-1, -0.2, 0, 1,	 0, 0, 0,
-	*/
-
-
-//Body
-
-//front1,0,0,
-	0.0, 0.0, 0.0, 1.0, 	1,0,0,
-	0.0,  1.0, 0.0, 1.0,  	1,0,0,
-	1.0,  1.0, 0.0, 1.0, 	1,0,0,
-
-	0.0, 0.0,  0.0, 1.0, 	1,0,0, 
-	1.0,  0.0,  0.0, 1.0,   1,0,0,
-	1.0,  1.0,  0.0, 1.0, 	1,0,0,
-
-	0.0, 0.0,  1.0, 1.0, 	0,1,0,
-	0.0,  1.0,  1.0, 1.0,  	0,1,0,
-	1.0,  1.0,  1.0, 1.0, 	0,1,0,
-
-	0.0, 0.0,  1.0, 1.0, 	0,1,0, 
-	1.0,  0.0,  1.0, 1.0,   0,1,0,
-	1.0,  1.0,  1.0, 1.0, 	0,1,0,
-
-	1.0, 0.0,  0.0, 1.0, 	0,0,1, 
-	1.0,  1.0,  0.0, 1.0,   0,0,1,
-	1.0,  1.0,  1.0, 1.0, 	0,0,1, 
-
-	1.0, 0.0,  0.0, 1.0, 	0,0,1, 
-	1.0,  0.0,  1.0, 1.0,   0,0,1,
-	1.0,  1.0,  1.0, 1.0, 	0,0,1,
-
-	0.0, 0.0,  0.0, 1.0, 	1,0,1, 
-	0.0,  1.0,  0.0, 1.0,   1,0,1,
-	0.0,  1.0,  1.0, 1.0, 	1,0,1,
-
-	0.0, 0.0,  0.0, 1.0, 	1,0,1, 
-	0.0,  0.0,  1.0, 1.0,   1,0,1,
-	0.0,  1.0,  1.0, 1.0, 	1,0,1, 
-
-	0.0, 1.0,  0.0, 1.0, 	1,1,0, 
-	0.0,  1.0,  1.0, 1.0,   1,1,0,
-	1.0,  1.0,  1.0, 1.0, 	1,1,0, 
-
-	0.0, 1.0,  0.0, 1.0, 	1,1,0, 
-	1.0,  1.0,  0.0, 1.0,   1,1,0,
-	1.0,  1.0,  1.0, 1.0, 	1,1,0,
-
-	0.0, 0.0,  0.0, 1.0, 	1,1,0.5, 
-	0.0,  0.0,  1.0, 1.0,   1,1,0.5,
-	1.0,  0.0,  1.0, 1.0, 	1,1,0.5, 
-
-	0.0, 0.0,  0.0, 1.0, 	1,1,0.5, 
-	1.0,  0.0,  0.0, 1.0,   1,1,0.5,
-	1.0,  0.0,  1.0, 1.0, 	1,1,0.5,
-
-	//back
-	0.0, 0.0, 0.0, 1.0, 	0.0, 0, 1, 
-	0.0,  1.0, 0.0, 1.0,  	0.0, 0, 1,
-	1.0,  1,  -0.2, 1.0,    0.0, 0, 1.0,
-
-	0.0, 0.0, -1.0, 1.0, 	0.0, 1.0, 0, 
-	0.0,  1.0, -1.0, 1.0,  	0.0, 1.0, 0,
-	1.0,  1,  -0.2, 1.0,    0.0,1.0,0,
-
-	0.0, 0.0, 0.0, 1.0, 	0.3, 1, 0.5, 
-	0.0, 0.0, -1.0, 1.0, 	0.3, 1, 0.5,
-	1.0,  1,  -0.2, 1.0,    0.3, 1, 0.5,
-
-	0.0,  1.0, 0.0, 1.0,  1, 0, 0,
-	0.0,  1.0, -1.0, 1.0,  1, 0, 0,
-	1.0,  1,  -0.2, 1.0,   1, 0, 0,
-
-	//propellor prop
-	0, 0, 0, 1, 	1, 0, 0,
-	0, 0.4, 0, 1,	1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0 ,0,
-
-	0, 0.4, 0, 1,	1, 0, 0,
-	0.2, 0.4, 0, 1, 1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0 ,0,
-
-	0.2, 0.4, 0, 1, 	0, 0, 1,
-	0.2, 0, 0, 1,  	 	0, 0 ,1,
-	0.2, 0, -0.2, 1, 	0, 0 ,1,
-
-	0.2, 0.4, 0, 1, 	0, 0, 1,
-	0.2, 0.4, -0.2, 1, 	0, 0, 1,
-	0.2, 0, -0.2, 1, 	0, 0 ,1,
-
-	0, 0, -0.2, 1, 		1, 0, 0,
-	0, 0.4, -0.2, 1,	1, 0, 0,
-	0.2, 0, -0.2, 1, 	1, 0 ,0,
-
-	0, 0.4, -0.2, 1,	1, 0, 0,
-	0.2, 0.4, -0.2, 1,  1, 0, 0,
-	0.2, 0, -0.2, 1, 	1, 0 ,0,
-
-	0, 0, -0.2, 1,	0,1,0,
-	0, 0.4, -0.2, 1, 	0, 1, 0,
-	0, 0.4, 0, 1, 	0,1,0,
-
-	0, 0, 0, 1, 	0,1,0,
-	0, 0.4, 0, 1,  0,1,0,
-	0, 0, -0.2, 1,	0,1,0,
-
-	0, 0.4, 0, 1,	1, 0, 0,
-	0, 0.4, -0.2, 1,	1, 0, 0,
+	// Propeller Stand
+	0, 0, 0, 1, 		0,0,0,
+	0, 0.4, 0, 1,		0,0,0,
+	0.2, 0, 0, 1, 		0,0,0,
+	0, 0.4, 0, 1,		0,0,0,
 	0.2, 0.4, 0, 1, 	0,0,0,
-
-	0, 0.4, -0.2, 1,	1, 0, 0,
+	0.2, 0, 0, 1, 		0,0,0,
+	0.2, 0.4, 0, 1, 	0,0,0,
+	0.2, 0, 0, 1,  	 	0,0,0,
+	0.2, 0, -0.2, 1, 	0,0,0,
 	0.2, 0.4, 0, 1, 	0,0,0,
 	0.2, 0.4, -0.2, 1, 	0,0,0,
+	0.2, 0, -0.2, 1, 	0,0,0,
+	0, 0, -0.2, 1, 		0,0,0,
+	0, 0.4, -0.2, 1,	0,0,0,
+	0.2, 0, -0.2, 1, 	0,0,0,
+	0, 0.4, -0.2, 1,	0,0,0,
+	0.2, 0.4, -0.2, 1,  0,0,0,
+	0.2, 0, -0.2, 1, 	0,0,0,
+	0, 0, -0.2, 1,		0,0,0,
+	0, 0.4, -0.2, 1, 	0,0,0,
+	0, 0.4, 0, 1, 		0,0,0,
+	0, 0, 0, 1, 		0,0,0,
+	0, 0.4, 0, 1,  		0,0,0,
+	0, 0, -0.2, 1,		0,0,0,
+	0, 0.4, 0, 1,		0,0,0,
+	0, 0.4, -0.2, 1,	0,0,0,
+	0.2, 0.4, 0, 1,		0,0,0,
+	0, 0.4, -0.2, 1,	0,0,0,
+	0.2, 0.4, 0, 1,		0,0,0,
+	0.2, 0.4, -0.2, 1,	0,0,0,
+	0, 0, 0, 1, 		0,0,0,
+	0.2, 0, 0, 1, 		0,0,0,
+	0, 0, -0.2, 1, 		0,0,0,
+	0.2, 0, -0.2, 1, 	0,0,0,
+	0.2, 0, 0, 1, 		0,0,0,
+	0, 0, -0.2, 1, 		0,0,0,
 
-	0, 0, 0, 1, 	1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0, 0,
-	0, 0, -0.2, 1, 	1, 0, 0,
+	// Landing Gear
+	0, 0, 0, 1, 		0,0,0,
+	0, 0.2, 0, 1, 		0,0,0,
+	1, 0, 0, 1, 		1,1,1,
+	0, 0.2, 0,  1, 		0,0,0,
+	1, 0, 0, 	1, 		0,0,0,
+	1, 0.2, 0,  1, 		1,1,1,
+	0, 0, -0.2, 1, 		0,0,0,
+	0, 0.2, -0.2, 1, 	0,0,0,
+	1, 0, -0.2, 1, 		1,1,1,
+	0, 0.2, -0.2, 1, 	0,0,0,
+	1, 0, -0.2, 1, 		0,0,0,
+	1, 0.2, -0.2, 1, 	1,1,1,
+	0, 0.2, -0.2, 1, 	0,0,0,
+	1, 0.2, -0.2, 1, 	0,0,0,
+	1, 0.2, 0, 1, 		1,1,1,
+	1, 0.2, 0, 1, 		0,0,0,
+	0, 0.2, -0.2, 1, 	0,0,0,
+	0, 0.2, 0, 1, 		1,1,1,
+	0, 0, -0.2, 1, 		0,0,0,
+	1, 0, -0.2, 1, 		0,0,0,
+	1, 0, 0, 1, 		1,1,1,
+	1, 0, 0, 1, 		0,0,0,
+	0, 0, -0.2, 1, 		0,0,0,
+	0, 0, 0, 1, 		1,1,1,
+	0, 0, -0.2, 1, 		0,0,0,
+	0, 0, 0, 1, 		0,0,0,
+	0, 0.2, 0, 1, 		1,1,1,
+	0, 0.2, -0.2, 1, 	0,0,0,
+	0, 0.2, 0, 1, 		0,0,0,
+	0, 0, -0.2, 1, 		1,1,1,
+	1, 0, -0.2, 1, 		0,0,0,
+	1, 0, 0, 1, 		0,0,0,
+	1, 0.2, 0, 1, 		1,1,1,
+	1, 0.2, -0.2, 1, 	0,0,0,
+	1, 0.2, 0, 1, 		0,0,0,
+	1, 0, -0.2, 1, 		1,1,1,
 
-	0.2, 0, -0.2, 1, 	1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0, 0,
-	0, 0, -0.2, 1, 	1, 0, 0,
-
-	//Landing gear
-	0, 0, 0, 1, 		1, 0, 0,
-	0, 0.2, 0, 1, 		1, 0, 0,
-	1, 0, 0, 1, 		1, 0, 0,
-
-	0, 0.2, 0,  1, 		1, 0, 0,
-	1, 0, 0, 	1, 		1, 0, 0,
-	1, 0.2, 0,  1, 		1, 0, 0,
-
-	0, 0, -0.2, 1, 		1, 0, 0,
-	0, 0.2, -0.2, 1, 	1, 0, 0,
-	1, 0, -0.2, 1, 		1, 0, 0,
-
-	0, 0.2, -0.2, 1, 	1, 0, 0,
-	1, 0, -0.2, 1, 		1, 0, 0,
-	1, 0.2, -0.2, 1, 	1, 0, 0,
-
-	0, 0.2, -0.2, 1, 	0, 1, 0,
-	1, 0.2, -0.2, 1, 	0, 1, 0,
-	1, 0.2, 0, 1, 		0, 1, 0,
-
-	1, 0.2, 0, 1, 		0, 1, 0,
-	0, 0.2, -0.2, 1, 	0, 1, 0,
-	0, 0.2, 0, 1, 		0, 1, 0,
-	
-	0, 0, -0.2, 1, 		0, 1, 0,
-	1, 0, -0.2, 1, 		0, 1, 0,
-	1, 0, 0, 1, 		0, 1, 0,
-
-	1, 0, 0, 1, 		0, 1, 0,
-	0, 0, -0.2, 1, 		0, 1, 0,
-	0, 0, 0, 1, 		0, 1, 0,
-
-	0, 0, -0.2, 1, 		0, 1, 0,
-	0, 0, 0, 1, 		0, 1, 0,
-	0, 0.2, 0, 1, 		0, 1, 0,
-
-	0, 0.2, -0.2, 1, 	0, 1, 0,
-	0, 0.2, 0, 1, 		0, 1, 0,
-	0, 0, -0.2, 1, 		0, 1, 0,
-
-	1, 0, -0.2, 1, 		0, 1, 0,
-	1, 0, 0, 1, 		0, 1, 0,
-	1, 0.2, 0, 1, 		0, 1, 0,
-
-	1, 0.2, -0.2, 1, 	0, 1, 0,
-	1, 0.2, 0, 1, 		0, 1, 0,
-	1, 0, -0.2, 1, 		0, 1, 0,
-
-	//feet supports for landing
-	0, 0, 0, 1, 	1, 0, 0,
-	0, 0.2, 0, 1,	1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0 ,0,
-
-	0, 0.2, 0, 1,	1, 0, 0,
-	0.2, 0.2, 0, 1, 1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0 ,0,
-
-	0.2, 0.2, 0, 1, 	0, 0, 1,
-	0.2, 0, 0, 1,  	 	0, 0 ,1,
-	0.2, 0, -0.2, 1, 	0, 0 ,1,
-
-	0.2, 0.2, 0, 1, 	0, 0, 1,
-	0.2, 0.2, -0.2, 1, 	0, 0, 1,
-	0.2, 0, -0.2, 1, 	0, 0 ,1,
-
-	0, 0, -0.2, 1, 		1, 0, 0,
-	0, 0.2, -0.2, 1,	1, 0, 0,
-	0.2, 0, -0.2, 1, 	1, 0 ,0,
-
-	0, 0.2, -0.2, 1,	1, 0, 0,
-	0.2, 0.2, -0.2, 1,  1, 0, 0,
-	0.2, 0, -0.2, 1, 	1, 0 ,0,
-
-	0, 0, -0.2, 1,	0,1,0,
-	0, 0.2, -0.2, 1, 	0, 1, 0,
-	0, 0.2, 0, 1, 	0,1,0,
-
-	0, 0, 0, 1, 	0,1,0,
-	0, 0.2, 0, 1,  0,1,0,
-	0, 0, -0.2, 1,	0,1,0,
-
-	0, 0.2, 0, 1,	1, 0, 0,
-	0, 0.2, -0.2, 1,	1, 0, 0,
+	// Landing Gear Supports
+	0, 0, 0, 1, 		0,0,0,
+	0, 0.2, 0, 1,		0,0,0,
+	0.2, 0, 0, 1, 		0.5,0.5,0.5,
+	0, 0.2, 0, 1,		0,0,0,
 	0.2, 0.2, 0, 1, 	0,0,0,
-
-	0, 0.2, -0.2, 1,	1, 0, 0,
+	0.2, 0, 0, 1, 		0.5,0.5,0.5,
+	0.2, 0.2, 0, 1, 	0,0,0,
+	0.2, 0, 0, 1,  	 	0,0,0,
+	0.2, 0, -0.2, 1, 	0.5,0.5,0.5,
 	0.2, 0.2, 0, 1, 	0,0,0,
 	0.2, 0.2, -0.2, 1, 	0,0,0,
-
-	0, 0, 0, 1, 	1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0, 0,
-	0, 0, -0.2, 1, 	1, 0, 0,
-
-	0.2, 0, -0.2, 1, 	1, 0, 0,
-	0.2, 0, 0, 1, 	1, 0, 0,
-	0, 0, -0.2, 1, 	1, 0, 0,
-
-
-
-
-
-
-
-
-
-
-
+	0.2, 0, -0.2, 1, 	0.5,0.5,0.5,
+	0, 0, -0.2, 1, 		0,0,0,
+	0, 0.2, -0.2, 1,	0,0,0,
+	0.2, 0, -0.2, 1, 	0.5,0.5,0.5,
+	0, 0.2, -0.2, 1,	0,0,0,
+	0.2, 0.2, -0.2, 1,  0,0,0,
+	0.2, 0, -0.2, 1, 	0.5,0.5,0.5,
+	0, 0, -0.2, 1,		0,0,0,
+	0, 0.2, -0.2, 1, 	0,0,0,
+	0, 0.2, 0, 1, 		0.5,0.5,0.5,
+	0, 0, 0, 1, 		0,0,0,
+	0, 0.2, 0, 1,  		0,0,0,
+	0, 0, -0.2, 1,		0.5,0.5,0.5,
+	0, 0.2, 0, 1,		0,0,0,
+	0, 0.2, -0.2, 1,	0,0,0,
+	0.2, 0.2, 0, 1,		0.5,0.5,0.5,
+	0, 0.2, -0.2, 1,	0,0,0,
+	0.2, 0.2, 0, 1,		0,0,0,
+	0.2, 0.2, -0.2, 1,	0.5,0.5,0.5,
+	0, 0, 0, 1, 		0,0,0,
+	0.2, 0, 0, 1, 		0,0,0,
+	0, 0, -0.2, 1, 		0.5,0.5,0.5,
+	0.2, 0, -0.2, 1, 	0,0,0,
+	0.2, 0, 0, 1, 		0,0,0,
+	0, 0, -0.2, 1, 		0.5,0.5,0.5,
   ]);
 
   g_vertsMax = 138;
@@ -429,14 +370,11 @@ function drawAll()
 
 
 	g_modelMatrix.setTranslate(-0.5,-0.5,0,0);
-	g_modelMatrix.translate(hori,vert,dist,0);
-	g_modelMatrix.scale(1,1,-1);
-	g_modelMatrix.scale(0.5,0.5,0.5);
-	//REMOVE THIS TO SEE REGULAR POSITIONING
-	g_modelMatrix.rotate(-30,1 , 0, 0);
-	g_modelMatrix.rotate(-20,0  , 1, 0);
-	g_modelMatrix.rotate(cw,0,1,0);
-	g_modelMatrix.rotate(pitch,0,0,1);
+	
+	g_modelMatrix.translate(g_horizontal,g_vertical,0,0);
+	g_modelMatrix.scale(g_scale/100,g_scale/100,g_scale/100);
+	var dist = Math.sqrt(g_xMdragTot*g_xMdragTot + g_yMdragTot*g_yMdragTot);
+	g_modelMatrix.rotate(dist*60.0, -g_yMdragTot+0.0001, g_xMdragTot+0.0001, 0.0);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
 	drawBody();
 	pushMatrix(g_modelMatrix);
@@ -562,6 +500,10 @@ function animate()
 {
 	var now = Date.now();
 	var elapsed = now - g_last;
+	g_mainRpm = main_speed.value;
+	g_tailRpm = tail_speed.value;
+	g_scale = zoom.value;
+
 	g_last = now;
 	g_mainAngle = g_mainAngle + (g_mainRpm * elapsed) / 1000;
 	g_tailAngle = g_tailAngle + (g_tailRpm * elapsed) / 1000; 
@@ -597,48 +539,140 @@ function myKeyDown(kev) {
 	switch(kev.code) {
 		//------------------WASD navigation-----------------
 		case "KeyA":
-			document.getElementById('KeyDownResult').innerHTML =  
-			hori-=0.01;
+			g_horizontal-=0.05;
 			break;
-    	case "KeyD":
-			document.getElementById('KeyDownResult').innerHTML =  
-			hori+=0.01;
+    	case "KeyD":  
+			g_horizontal+=0.05;
 			break;
-		case "KeyS":
-			document.getElementById('KeyDownResult').innerHTML =  
-			vert-=0.01;
+		case "KeyS":  
+			g_vertical-=0.05;
 			break;
-		case "KeyW":
-			document.getElementById('KeyDownResult').innerHTML =  
-			vert+=0.01;
+		case "KeyW":  
+			g_vertical+=0.05;
 			break;
-		case "KeyE":
-			document.getElementById('KeyDownResult').innerHTML =  
-			cw-=0.5;
+		case "KeyE":  
+			g_rotation-=5;
 			break;
-		case "KeyQ":
-			document.getElementById('KeyDownResult').innerHTML =  
-			cw+=0.5;
+		case "KeyQ":  
+			g_rotation+=5;
 			break;
-		case "KeyX":
-			document.getElementById('KeyDownResult').innerHTML =  
-			pitch-=0.5;
+		case "KeyX":  
+			g_pitch-=5;
 			break;
-		case "KeyZ":
-			document.getElementById('KeyDownResult').innerHTML =  
-			pitch+=0.5;
+		case "KeyZ":  
+			g_pitch+=5;
 			break;
-		case "ArrowUp":		
-			document.getElementById('KeyDownResult').innerHTML =  
-			dist-=0.1;
+		case "ArrowUp":		  
+			g_scale-=0.1;
 			break;
-		case "ArrowDown":
-			document.getElementById('KeyDownResult').innerHTML =  
-			dist+=0.1;
+		case "ArrowDown":  
+			g_scale+=0.1;
 			break;	
-    default:
-  		document.getElementById('KeyDownResult').innerHTML =
-  		'Not Used';
-     	break;
 	}
 }
+
+function myMouseDown(ev) {
+	if(ev.clientY > 500){
+		return
+	}
+	  var rect = ev.target.getBoundingClientRect();	// get canvas corners in pixels
+	  var xp = ev.clientX - rect.left;									// x==0 at canvas left edge
+	  var yp = g_canvas.height - (ev.clientY - rect.top);	// y==0 at canvas bottom edge
+
+	  
+	  var x = (xp - g_canvas.width/2)  / 		// move origin to center of canvas and
+							   (g_canvas.width/2);			// normalize canvas to -1 <= x < +1,
+		var y = (yp - g_canvas.height/2) /		//										 -1 <= y < +1.
+								 (g_canvas.height/2);
+	//	console.log('myMouseDown(CVV coords  ):  x, y=\t',x,',\t',y);
+		
+		g_isDrag = true;											// set our mouse-dragging flag
+		g_xMclik = x;													// record where mouse-dragging began
+		g_yMclik = y;
+	};
+	
+	
+	function myMouseMove(ev) {
+	//==============================================================================
+	// Called when user MOVES the mouse with a button already pressed down.
+	// 									(Which button?   console.log('ev.button='+ev.button);    )
+	// 		ev.clientX, ev.clientY == mouse pointer location, but measured in webpage 
+	//		pixels: left-handed coords; UPPER left origin; Y increases DOWNWARDS (!)  
+		if(g_isDrag==false) return;				// IGNORE all mouse-moves except 'dragging'
+	
+		// Create right-handed 'pixel' coords with origin at WebGL canvas LOWER left;
+	  var rect = ev.target.getBoundingClientRect();	// get canvas corners in pixels
+	  var xp = ev.clientX - rect.left;									// x==0 at canvas left edge
+		var yp = g_canvas.height - (ev.clientY - rect.top);	// y==0 at canvas bottom edge
+	//  console.log('myMouseMove(pixel coords): xp,yp=\t',xp,',\t',yp);
+	  
+		// Convert to Canonical View Volume (CVV) coordinates too:
+	  var x = (xp - g_canvas.width/2)  / 		// move origin to center of canvas and
+							   (g_canvas.width/2);			// normalize canvas to -1 <= x < +1,
+		var y = (yp - g_canvas.height/2) /		//										 -1 <= y < +1.
+								 (g_canvas.height/2);
+	//	console.log('myMouseMove(CVV coords  ):  x, y=\t',x,',\t',y);
+	
+		// find how far we dragged the mouse:
+		g_xMdragTot += (x - g_xMclik);					// Accumulate change-in-mouse-position,&
+		g_yMdragTot += (y - g_yMclik);
+	
+		g_xMclik = x;													// Make next drag-measurement from here.
+		g_yMclik = y;
+	};
+	
+	function myMouseUp(ev) {
+		if(ev.clientY > 500){
+			g_isDrag = false;
+			return
+		}
+	//==============================================================================
+	// Called when user RELEASES mouse button pressed previously.
+	// 									(Which button?   console.log('ev.button='+ev.button);    )
+	// 		ev.clientX, ev.clientY == mouse pointer location, but measured in webpage 
+	//		pixels: left-handed coords; UPPER left origin; Y increases DOWNWARDS (!)  
+	
+	// Create right-handed 'pixel' coords with origin at WebGL canvas LOWER left;
+	  var rect = ev.target.getBoundingClientRect();	// get canvas corners in pixels
+	  var xp = ev.clientX - rect.left;									// x==0 at canvas left edge
+		var yp = g_canvas.height - (ev.clientY - rect.top);	// y==0 at canvas bottom edge
+	//  console.log('myMouseUp  (pixel coords): xp,yp=\t',xp,',\t',yp);
+	  
+		// Convert to Canonical View Volume (CVV) coordinates too:
+	  var x = (xp - g_canvas.width/2)  / 		// move origin to center of canvas and
+							   (g_canvas.width/2);			// normalize canvas to -1 <= x < +1,
+		var y = (yp - g_canvas.height/2) /		//										 -1 <= y < +1.
+								 (g_canvas.height/2);
+		
+		g_isDrag = false;											// CLEAR our mouse-dragging flag, and
+		// accumulate any final bit of mouse-dragging we did:
+		g_xMdragTot += (x - g_xMclik);
+		g_yMdragTot += (y - g_yMclik);
+	};
+	
+	function myMouseClick(ev) {
+	//=============================================================================
+	// Called when user completes a mouse-button single-click event 
+	// (e.g. mouse-button pressed down, then released)
+	// 									   
+	//    WHICH button? try:  console.log('ev.button='+ev.button); 
+	// 		ev.clientX, ev.clientY == mouse pointer location, but measured in webpage 
+	//		pixels: left-handed coords; UPPER left origin; Y increases DOWNWARDS (!) 
+	//    See myMouseUp(), myMouseDown() for conversions to  CVV coordinates.
+	
+	  // STUB
+		console.log("myMouseClick() on button: ", ev.button); 
+	}	
+	
+	function myMouseDblClick(ev) {
+	//=============================================================================
+	// Called when user completes a mouse-button double-click event 
+	// 									   
+	//    WHICH button? try:  console.log('ev.button='+ev.button); 
+	// 		ev.clientX, ev.clientY == mouse pointer location, but measured in webpage 
+	//		pixels: left-handed coords; UPPER left origin; Y increases DOWNWARDS (!) 
+	//    See myMouseUp(), myMouseDown() for conversions to  CVV coordinates.
+	
+	  // STUB
+		console.log("myMouse-DOUBLE-Click() on button: ", ev.button); 
+	}	

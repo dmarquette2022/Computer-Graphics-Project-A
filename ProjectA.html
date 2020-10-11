@@ -10,14 +10,22 @@
 		<span id='KeyDownResult'  ></span> 
 	<p>
 		Main Rotor :
-		<button type="button" onclick="slowMain()">Decrease RPM </button>
-		<button type="button" onclick="speedMain()">Increase RPM </button>
+		<div class="slidecontainer">
+      <input type="range" min="1" max="1000" value="500" class="slider" id="main_rotor">
+    </div>
 	</p>
 	<p>
 		Tail Rotor :   
-		<button type="button" onclick="slowTail()">Decrease RPM </button>
-		<button type="button" onclick="speedTail()">Increase RPM </button>
-    </p>
+		<div class="slidecontainer">
+      <input type="range" min="1" max="1000" value="500" class="slider" id="tail_rotor">
+    </div>
+  </p>
+  <p>
+		Zoom :   
+		<div class="slidecontainer">
+      <input type="range" min="0" max="100" value="50" class="slider" id="zoom">
+    </div>
+  </p>
 
     <script src="lib/webgl-utils.js"></script>
     <script src="lib/webgl-debug.js"></script>
