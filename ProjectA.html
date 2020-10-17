@@ -9,7 +9,13 @@
 		<br>
     <span id='KeyDownResult'  ></span> 
   <p>
-    Move around the screen using WASD controls
+    Move the helicopter around the screen using WASD and mouse controls
+  </p>
+  <p>
+		Zoom Helicopter :   
+		<div class="slidecontainer">
+      <input type="range" min="0" max="40" value="20" class="slider" id="zoom">
+    </div>
   </p>
 	<p>
 		Main Rotor :
@@ -24,11 +30,14 @@
     </div>
   </p>
   <p>
-		Zoom :   
+    <br>
+    <br>
+		Spinny Rotor :   
 		<div class="slidecontainer">
-      <input type="range" min="0" max="100" value="50" class="slider" id="zoom">
+      <input type="range" min="1" max="400" value="200" class="slider" id="spin_rotor">
     </div>
   </p>
+  
 
     <script src="lib/webgl-utils.js"></script>
     <script src="lib/webgl-debug.js"></script>

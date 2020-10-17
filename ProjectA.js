@@ -50,8 +50,13 @@ var tail_speed = document.getElementById("tail_rotor");
 var g_tailRpm = tail_speed.value;
 var g_tailAngle = 0.0;
 
-var g_vertical = 0;
-var g_horizontal = 0;
+var spin_speed = document.getElementById("spin_rotor");
+		
+var g_spinRpm = spin_speed.value;
+var g_spinAngle = 0.0;
+
+var g_vertical = 1;
+var g_horizontal = 0.8;
 
 var g_rotation = 0;
 var g_pitch = 0;
@@ -467,6 +472,110 @@ function drawAll()
 	drawFeetSupport();
 
 
+
+
+
+
+
+
+
+	
+	g_modelMatrix.setTranslate(-0.3,0,0,0);
+	g_modelMatrix.rotate(90,0,0,1);
+	g_modelMatrix.rotate(140,1,0,0);
+	g_modelMatrix.rotate(-7,0,1,0);
+	g_modelMatrix.rotate(g_spinAngle,0,0,1);
+	g_modelMatrix.scale(0.5,0.5,0.5);
+	g_modelMatrix.rotate(90,1,0,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+
+	pushMatrix(g_modelMatrix);
+	g_modelMatrix.scale(0.3,0.3,0.3);
+	g_modelMatrix.translate(3, 0,0, 0);
+	g_modelMatrix.rotate(90,1,0,0);
+	g_modelMatrix.rotate(g_spinAngle,0,1,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	
+	
+	g_modelMatrix = popMatrix();
+	pushMatrix(g_modelMatrix);
+
+	g_modelMatrix.scale(0.3,0.3,0.3);
+	g_modelMatrix.rotate(90,1,0,0);
+	g_modelMatrix.rotate(90,0,0,1);
+	g_modelMatrix.translate(-3, 0,0, 0);
+	g_modelMatrix.rotate(g_spinAngle,0,1,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+
+	g_modelMatrix = popMatrix();
+	pushMatrix(g_modelMatrix);
+
+	g_modelMatrix.scale(0.3,0.3,0.3);
+	g_modelMatrix.rotate(90,1,0,0);
+	g_modelMatrix.rotate(90,0,0,1);
+	g_modelMatrix.translate(3, 0,0, 0);
+	g_modelMatrix.rotate(g_spinAngle,0,1,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+
+	g_modelMatrix = popMatrix();
+	pushMatrix(g_modelMatrix);
+	g_modelMatrix.scale(0.3,0.3,0.3);
+	g_modelMatrix.translate(-3, 0,0, 0);
+	g_modelMatrix.rotate(90,1,0,0);
+	g_modelMatrix.rotate(g_spinAngle,0,1,0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	g_modelMatrix.rotate(90,0,1,0);	
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	drawPropeller();
+	
+
 }
 
 function drawPropeller()
@@ -507,11 +616,13 @@ function animate()
 	var elapsed = now - g_last;
 	g_mainRpm = main_speed.value;
 	g_tailRpm = tail_speed.value;
+	g_spinRpm = spin_speed.value;
 	g_scale = zoom.value;
 
 	g_last = now;
 	g_mainAngle = g_mainAngle + (g_mainRpm * elapsed) / 1000;
-	g_tailAngle = g_tailAngle + (g_tailRpm * elapsed) / 1000; 
+	g_tailAngle = g_tailAngle + (g_tailRpm * elapsed) / 1000;
+	g_spinAngle = g_spinAngle + (g_spinRpm * elapsed) / 1000; 
 	g_viewAngle = g_viewAngle + 0.2;
 
 	if(g_propAngle > 0 && g_propRate > 0){
